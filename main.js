@@ -165,6 +165,14 @@ function updateProjectiles(){
 function shoot(){
     spawnProjectile();
     if (keyboard[32] && delay == 0) {
+        const laserSound = new THREE.Audio( listener );   
+        audioLoader.load('../sounds/laserSoundPlayer.MP3', function( buffer ){
+            laserSound.setBuffer( buffer );
+            laserSound.setLoop( false );
+            laserSound.setVolume( 0.05);
+            laserSound.play();
+        });
+
         let projectileMeshClone = projectileMesh.clone();
         projectileMeshClone.position.x = playerMesh.position.x;
         projectileMeshClone.position.y = playerMesh.position.y;
@@ -197,6 +205,26 @@ function animate() {
     renderer.render(scene, camera)
     requestAnimationFrame(animate)
 }
+
+//////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////
+// Sounds area
+//////////////////////////////////////////////////////////
+const listener = new THREE.AudioListener();
+//camera.add(listener);
+
+const audioLoader = new THREE.AudioLoader();
+
+const backgroundSound = new THREE.Audio( listener );
+audioLoader.load('../sounds/backgroundMusic.MP3', function( buffer ){
+    backgroundSound.setBuffer( buffer );
+    backgroundSound.setLoop( true );
+    backgroundSound.setVolume( 0.01);
+    backgroundSound.play();
+});
+
+
 //////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////
@@ -207,6 +235,12 @@ async function init() {
     //Spawning the scene
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xdddddd);
+
+    //Space background image
+    var loadBackground = new THREE.TextureLoader();
+    loadBackground.load("./Images/DarkSpace.png", function (texture){
+        scene.background = texture;
+    });
 
     //Renderer setup
     renderer = new THREE.WebGLRenderer({antialias: true});
