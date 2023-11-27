@@ -1,9 +1,24 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import {CSS2DRenderer, CSS2DObject} from 'three/examples/jsm/renderers/CSS2DRenderer';
 
 let camera;
 let scene;
 let renderer;
+
+const labelRenderer = new CSS2DRenderer();
+
+let p;
+let p2;
+let cPointLabel;
+let cPointLabel2;
+let labelX;
+let labelY;
+let labelZ;
+
+let labelX2;
+let labelY2;
+let labelZ2;
 
 let clock;
 
@@ -11,15 +26,38 @@ var playerMesh;
 var projectileMesh;
 let projectileMeshes = [];
 
+var playerHealth = 5;
+var iframes = 0;
+
 var bossPMesh;
 let bossPMeshes = [];
+let PTriggers = [];
+var P1Trig = 0;
+let bossPMeshes2 = [];
+let PTriggers2 = [];
+var P2Trig = 0;
+let bossPMeshes3 = [];
+var P3Trig = 1;
+let bossPMeshes4 = [];
+var P4Trig = 1;
 
-var bossHealth = 5;
+let bossPMeshesP2 = [];
+let bossPMeshesP22 = [];
+
+var phaseTrigger = 1;
+
+var snakeStart;
+var snakerng;
+var snakedelay;
+var snaketrigger = 0;
+
+var bossHealth = 20;
 
 var bossTag = 1;
 
 var delay = 0;
-var bossDelay = 5;
+var bossDelay = 20;
+var boss1Delay2 = 90;
 
 var bossMesh;
 let bossMeshes = [];
@@ -35,6 +73,13 @@ async function spawnPlayer(){
     playerMesh = player.scene.children[0];
     playerMesh.rotateY(45 * Math.PI/2);
     scene.add(playerMesh);
+
+    p2.textContent = playerHealth;
+    cPointLabel2 = new CSS2DObject(p2);
+    cPointLabel2.position.setZ(labelZ2);
+    cPointLabel2.position.setX(labelX2);
+    cPointLabel2.position.setY(labelY2);
+    scene.add(cPointLabel2);
 }
 //////////////////////////////////////////////////////////
 //
@@ -53,6 +98,13 @@ async function spawnBoss1(){
     bossMesh.scale.set(35,35,35);
     bossMeshes.push(bossMesh);
     scene.add(bossMesh);
+
+    p.textContent = bossHealth;
+    cPointLabel = new CSS2DObject(p);
+    cPointLabel.position.setZ(labelZ);
+    cPointLabel.position.setX(labelX);
+    cPointLabel.position.setY(labelY);
+    scene.add(cPointLabel);
 }
 
 async function spawnBoss2(){
@@ -75,38 +127,277 @@ async function spawnBProjectile(){
 	    bossPMesh = projectileGLTF.scene;
 	    bossPMesh.scale.set(1, 1, 1);
 }
-function bossShoot(){
+function boss1Phase1(){
+    if(phaseTrigger == 1){
     if(bossDelay == 0){
         let projectileMeshClone = bossPMesh.clone();
-        projectileMeshClone.position.x = bossMesh.position.x;
+        projectileMeshClone.position.x = bossMesh.position.x + 10;
         projectileMeshClone.position.y = bossMesh.position.y;
         projectileMeshClone.position.z = bossMesh.position.z;
         scene.add(projectileMeshClone);
         bossPMeshes.push(projectileMeshClone);
-        bossDelay = 25;
+        
+        projectileMeshClone = bossPMesh.clone();
+        projectileMeshClone.position.x = bossMesh.position.x + 20;
+        projectileMeshClone.position.y = bossMesh.position.y;
+        projectileMeshClone.position.z = bossMesh.position.z;
+        scene.add(projectileMeshClone);
+        bossPMeshes2.push(projectileMeshClone);
+
+        projectileMeshClone = bossPMesh.clone();
+        projectileMeshClone.position.x = bossMesh.position.x - 10;
+        projectileMeshClone.position.y = bossMesh.position.y;
+        projectileMeshClone.position.z = bossMesh.position.z;
+        scene.add(projectileMeshClone);
+        bossPMeshes3.push(projectileMeshClone);
+
+        projectileMeshClone = bossPMesh.clone();
+        projectileMeshClone.position.x = bossMesh.position.x - 20;
+        projectileMeshClone.position.y = bossMesh.position.y;
+        projectileMeshClone.position.z = bossMesh.position.z;
+        scene.add(projectileMeshClone);
+        bossPMeshes4.push(projectileMeshClone);
+        bossDelay = 100;
     }
 }
-function updateBossProjectiles(){
+}
+function updateBoss1Phase1(){
 	bossPMeshes.forEach((projectile, index) => {
-		projectile.position.z += 0.5;
+		projectile.position.z += 0.1;
+        if(projectile.position.x > 23){
+            P1Trig = 1;
+        }else if(projectile.position.x < -23){
+            P1Trig = 0;
+        }
+        if(P1Trig == 0){
+            projectile.position.x += 0.1;
+        }else{
+            projectile.position.x -= 0.1;
+        }
 		if(projectile.position.z > 50){
 			scene.remove(projectile);
 			bossPMeshes.splice(index, 1);
 		  }
 	});
+
+    bossPMeshes2.forEach((projectile, index) => {
+		projectile.position.z += 0.1;
+        if(projectile.position.x > 23){
+            P2Trig = 1;
+        }else if(projectile.position.x < -23){
+            P2Trig = 0;
+        }
+        if(P2Trig == 0){
+            projectile.position.x += 0.1;
+        }else{
+            projectile.position.x -= 0.1;
+        }
+		if(projectile.position.z > 50){
+			scene.remove(projectile);
+			bossPMeshes2.splice(index, 1);
+		  }
+	});
+
+    bossPMeshes3.forEach((projectile, index) => {
+		projectile.position.z += 0.1;
+        if(projectile.position.x > 23){
+            P3Trig = 1;
+        }else if(projectile.position.x < -23){
+            P3Trig = 0;
+        }
+        if(P3Trig == 0){
+            projectile.position.x += 0.1;
+        }else{
+            projectile.position.x -= 0.1;
+        }
+		if(projectile.position.z > 50){
+			scene.remove(projectile);
+			bossPMeshes3.splice(index, 1);
+		  }
+	});
+
+    bossPMeshes4.forEach((projectile, index) => {
+		projectile.position.z += 0.1;
+        if(projectile.position.x > 23){
+            P4Trig = 1;
+        }else if(projectile.position.x < -23){
+            P4Trig = 0;
+        }
+        if(P4Trig == 0){
+            projectile.position.x += 0.1;
+        }else{
+            projectile.position.x -= 0.1;
+        }
+		if(projectile.position.z > 50){
+			scene.remove(projectile);
+			bossPMeshes4.splice(index, 1);
+		  }
+	});
 }
+
 function updateBossDelay(){
     if(bossDelay!=0){
         bossDelay -= 1;
     }
+
+    if(boss1Delay2!=0){
+        boss1Delay2 -= 1;
+    }
+    if(boss1Delay2 == 0){
+        snakerng = Math.round(Math.random() * 12);
+        snaketrigger = 1;
+        snakedelay = 30;
+    }
+    if(snakedelay != 0){
+        snakedelay -= 1;
+    }else{
+        snaketrigger = 0;
+    }
 }
+
+function boss1Phase2(){
+    if(phaseTrigger == 2){
+    if(bossDelay == 0){
+        let projectileMeshClone = bossPMesh.clone();
+        projectileMeshClone.position.x = bossMesh.position.x + 15;
+        projectileMeshClone.position.y = bossMesh.position.y;
+        projectileMeshClone.position.z = bossMesh.position.z;
+        scene.add(projectileMeshClone);
+        bossPMeshesP2.push(projectileMeshClone);
+
+        projectileMeshClone = bossPMesh.clone();
+        projectileMeshClone.position.x = bossMesh.position.x + 5;
+        projectileMeshClone.position.y = bossMesh.position.y;
+        projectileMeshClone.position.z = bossMesh.position.z;
+        scene.add(projectileMeshClone);
+        bossPMeshesP2.push(projectileMeshClone);
+
+        //projectileMeshClone = bossPMesh.clone();
+        //projectileMeshClone.position.x = bossMesh.position.x;
+        //projectileMeshClone.position.y = bossMesh.position.y;
+        //projectileMeshClone.position.z = bossMesh.position.z;
+        //scene.add(projectileMeshClone);
+        //bossPMeshes.push(projectileMeshClone);
+
+        projectileMeshClone = bossPMesh.clone();
+        projectileMeshClone.position.x = bossMesh.position.x - 5;
+        projectileMeshClone.position.y = bossMesh.position.y;
+        projectileMeshClone.position.z = bossMesh.position.z;
+        scene.add(projectileMeshClone);
+        bossPMeshesP2.push(projectileMeshClone);
+
+        projectileMeshClone = bossPMesh.clone();
+        projectileMeshClone.position.x = bossMesh.position.x - 15;
+        projectileMeshClone.position.y = bossMesh.position.y;
+        projectileMeshClone.position.z = bossMesh.position.z;
+        scene.add(projectileMeshClone);
+        bossPMeshesP2.push(projectileMeshClone);
+
+        bossDelay = 150;
+    }
+        if (snaketrigger == 1){
+    switch(snakerng){
+        case 1:
+            let projectileMeshClone1 = bossPMesh.clone();
+        projectileMeshClone1.position.x = bossMesh.position.x - 20;
+        projectileMeshClone1.position.y = bossMesh.position.y;
+        projectileMeshClone1.position.z = bossMesh.position.z;
+        snakeStart = projectileMeshClone1.position.x;
+        scene.add(projectileMeshClone1);
+        bossPMeshesP22.push(projectileMeshClone1);
+        PTriggers.push(0);
+            break;
+        case 2:
+            let projectileMeshClone2 = bossPMesh.clone();
+        projectileMeshClone2.position.x = bossMesh.position.x - 10;
+        projectileMeshClone2.position.y = bossMesh.position.y;
+        projectileMeshClone2.position.z = bossMesh.position.z;
+        snakeStart = projectileMeshClone2.position.x;
+        scene.add(projectileMeshClone2);
+        bossPMeshesP22.push(projectileMeshClone2);
+        PTriggers.push(0);
+            break;
+        case 3:
+            let projectileMeshClone3 = bossPMesh.clone();
+        projectileMeshClone3.position.x = bossMesh.position.x + 10;
+        projectileMeshClone3.position.y = bossMesh.position.y;
+        projectileMeshClone3.position.z = bossMesh.position.z;
+        snakeStart = projectileMeshClone3.position.x;
+        scene.add(projectileMeshClone3);
+        bossPMeshesP22.push(projectileMeshClone3);
+        PTriggers.push(0);
+            break;
+        case 4:
+            let projectileMeshClone4 = bossPMesh.clone();
+        projectileMeshClone4.position.x = bossMesh.position.x + 20;
+        projectileMeshClone4.position.y = bossMesh.position.y;
+        projectileMeshClone4.position.z = bossMesh.position.z;
+        snakeStart = projectileMeshClone4.position.x;
+        scene.add(projectileMeshClone4);
+        bossPMeshesP22.push(projectileMeshClone4);
+        PTriggers.push(0);
+            break;
+        }
+
+    boss1Delay2 = 150;
+    }
+}
+}
+
+
+function updateBoss1Phase2(){
+	bossPMeshesP2.forEach((projectile, index) => {
+		projectile.position.z += 0.1;
+        if(projectile.position.x > 23){
+            P1Trig = 1;
+        }else if(projectile.position.x < -23){
+            P1Trig = 0;
+        }
+        if(P1Trig == 0){
+            projectile.position.x += 0.1;
+        }else{
+            projectile.position.x -= 0.1;
+        }
+		if(projectile.position.z > 50){
+			scene.remove(projectile);
+			bossPMeshesP2.splice(index, 1);
+		  }
+	});
+
+    bossPMeshesP22.forEach((projectile, index) => {
+		projectile.position.z += 0.4;
+        if(projectile.position.x > snakeStart + 5){
+            PTriggers[index] = 1;
+        }else if(projectile.position.x < snakeStart - 5){
+            PTriggers[index] = 0;
+        }
+        if(PTriggers[index] == 0){
+            projectile.position.x += 0.3;
+        }else if (PTriggers[index] == 1){
+            projectile.position.x -= 0.3;
+        }
+		if(projectile.position.z > 40){
+			scene.remove(projectile);
+			bossPMeshesP22.splice(index, 1);
+            PTriggers.splice(index, 1);
+		  }
+	});
+}
+
 //////////////////////////////////////////////////////////
 
 function updateBossHealth(){
     switch(bossTag){
         case 1:
             bossHealth -= 1;
+            p.textContent = bossHealth;
+    cPointLabel = new CSS2DObject(p);
+    cPointLabel.position.setZ(labelZ);
+    cPointLabel.position.setX(labelX);
+    cPointLabel.position.setY(labelY);
+    scene.add(cPointLabel);
             if(bossHealth == 0){
+                bossDelay = 100;
                 delay = 60;
                 projectileMeshes.forEach((projectile, index) =>{
                     scene.remove(projectile);
@@ -119,11 +410,16 @@ function updateBossHealth(){
                 spawnBoss2();
                 bossHealth = 10;
                 bossTag = 2;
+                phaseTrigger = 1;
+            }
+            if(bossHealth == 5){
+                phaseTrigger = 2;
             }
             break;
         case 2:
             bossHealth -= 1;
             if(bossHealth == 0){
+                bossDelay = 100;
                 delay = 60;
                 projectileMeshes.forEach((projectile, index) =>{
                     scene.remove(projectile);
@@ -175,6 +471,32 @@ function movePlayer(){
 //////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////
+// Player collision
+//////////////////////////////////////////////////////////
+function checkCollision(){
+    bossPMeshes.forEach((projectile, index) => {
+        if(playerMesh.position.x >= projectile.position.x - 1 &&
+            playerMesh.position.x <= projectile.position.x + 1 &&
+            playerMesh.position.z >= projectile.position.z - 1 &&
+            playerMesh.position.z <= projectile.position.z + 1 && iframes == 0){
+                playerHealth -= 1;
+                p2.textContent = playerHealth;
+    cPointLabel2 = new CSS2DObject(p2);
+    cPointLabel2.position.setZ(labelZ2);
+    cPointLabel2.position.setX(labelX2);
+    cPointLabel2.position.setY(labelY2);
+    scene.add(cPointLabel2);
+                iframes = 30;
+                console.log(playerHealth);
+            }
+    })
+    if(playerHealth == 0){
+        location.reload();
+    }
+}
+//////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////
 // Camera movement
 //////////////////////////////////////////////////////////
 function moveCamera(){
@@ -182,12 +504,119 @@ function moveCamera(){
         camera.position.z = -20;
         camera.position.y = 50;
         camera.rotation.x = -Math.PI / 2;
+        camera.rotation.y = 0;
+        camera.position.x = 0;
+
+        labelX = -70;
+        labelY = 0;
+        labelZ = -55;
+    
+        labelX2 = -69;
+        labelY2 = 0;
+        labelZ2 = 6;
+    
+        p.textContent = bossHealth;
+        cPointLabel = new CSS2DObject(p);
+        cPointLabel.position.setZ(labelZ);
+        cPointLabel.position.setX(labelX);
+        cPointLabel.position.setY(labelY);
+        scene.add(cPointLabel);
+    
+        p2.textContent = playerHealth;
+        cPointLabel2 = new CSS2DObject(p2);
+        cPointLabel2.position.setZ(labelZ2);
+        cPointLabel2.position.setX(labelX2);
+        cPointLabel2.position.setY(labelY2);
+        scene.add(cPointLabel2);
     }
     if(keyboard[40]){
         camera.position.z = 30;
     camera.position.y = 20;
     camera.position.x = 0;
     camera.rotation.x = -0.3;
+    camera.rotation.y = 0;
+
+    labelX = -35;
+    labelY = 30;
+    labelZ = 0;
+
+    labelX2 = -52;
+    labelY2 = -10;
+    labelZ2 = 0;
+
+    p.textContent = bossHealth;
+    cPointLabel = new CSS2DObject(p);
+    cPointLabel.position.setZ(labelZ);
+    cPointLabel.position.setX(labelX);
+    cPointLabel.position.setY(labelY);
+    scene.add(cPointLabel);
+
+    p2.textContent = playerHealth;
+    cPointLabel2 = new CSS2DObject(p2);
+    cPointLabel2.position.setZ(labelZ2);
+    cPointLabel2.position.setX(labelX2);
+    cPointLabel2.position.setY(labelY2);
+    scene.add(cPointLabel2);
+    }
+
+    if(keyboard[37]){
+        camera.position.z = -30;
+        camera.position.y = 10;
+        camera.position.x = -65;
+        camera.rotation.y = -1.8;
+        camera.rotation.x = 0;
+
+    labelX = 0;
+    labelY = 75;
+    labelZ = 120;
+
+    labelX2 = 0;
+    labelY2 = -40;
+    labelZ2 = 120;
+
+    p.textContent = bossHealth;
+    cPointLabel = new CSS2DObject(p);
+    cPointLabel.position.setZ(labelZ);
+    cPointLabel.position.setX(labelX);
+    cPointLabel.position.setY(labelY);
+    scene.add(cPointLabel);
+
+    p2.textContent = playerHealth;
+    cPointLabel2 = new CSS2DObject(p2);
+    cPointLabel2.position.setZ(labelZ2);
+    cPointLabel2.position.setX(labelX2);
+    cPointLabel2.position.setY(labelY2);
+    scene.add(cPointLabel2);
+    }
+
+    if(keyboard[39]){
+        camera.position.z = -30;
+        camera.position.y = 10;
+        camera.position.x = 65;
+        camera.rotation.y = 1.8;
+        camera.rotation.x = 0;
+
+        labelX = 0;
+        labelY = 75;
+        labelZ = 120;
+    
+        labelX2 = 0;
+        labelY2 = -40;
+        labelZ2 = 120;
+
+    p.textContent = bossHealth;
+    cPointLabel = new CSS2DObject(p);
+    cPointLabel.position.setZ(labelZ);
+    cPointLabel.position.setX(labelX);
+    cPointLabel.position.setY(labelY);
+    scene.add(cPointLabel);
+
+    p2.textContent = playerHealth;
+    cPointLabel2 = new CSS2DObject(p2);
+    cPointLabel2.position.setZ(labelZ2);
+    cPointLabel2.position.setX(labelX2);
+    cPointLabel2.position.setY(labelY2);
+    scene.add(cPointLabel2);
     }
 }
 //////////////////////////////////////////////////////////
@@ -268,6 +697,9 @@ function updateDelay(){
     if(delay!=0){
         delay -= 1;
     }
+    if(iframes != 0){
+        iframes -= 1;
+    }
 }
 //////////////////////////////////////////////////////////
 
@@ -278,13 +710,17 @@ function animate() {
     movePlayer();
     moveCamera();
     shoot();
-    bossShoot();
+    boss1Phase1();
+    boss1Phase2();
 	updateProjectiles();
-    updateBossProjectiles();
+    updateBoss1Phase1();
+    updateBoss1Phase2();
     updateDelay();
     updateBossDelay();
+    checkCollision();
 
     renderer.render(scene, camera)
+    labelRenderer.render(scene, camera)
     requestAnimationFrame(animate)
 }
 //////////////////////////////////////////////////////////
@@ -318,6 +754,15 @@ async function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth , window.innerHeight);
 
+    labelRenderer.setSize(window.innerWidth , window.innerHeight);
+    labelRenderer.domElement.style.position = 'absolute';
+    labelRenderer.domElement.style.top = '0px';
+    labelRenderer.domElement.style.color = "white";
+    labelRenderer.domElement.style.fontFamily = "sans-serif";
+    labelRenderer.domElement.style.fontWeight = "bold";
+    labelRenderer.domElement.style.fontSize = "30px";
+    document.body.appendChild(labelRenderer.domElement);
+
     const backgroundSound = new THREE.Audio( listener );
 audioLoader.load('../sounds/backgroundMusic.MP3', function( buffer ){
     backgroundSound.setBuffer( buffer );
@@ -345,6 +790,17 @@ audioLoader.load('../sounds/backgroundMusic.MP3', function( buffer ){
     camera.position.y = 20;
     camera.position.x = 0;
     camera.rotation.x = -0.3;
+    //camera.lookAt(scene.position);
+    labelX = -35;
+    labelY = 30;
+    labelZ = 0;
+
+    labelX2 = -52;
+    labelY2 = -10;
+    labelZ2 = 0;
+
+    p = document.createElement('p');
+    p2 = document.createElement('p');
 
     //Funny game clock
     clock = new THREE.Clock();
@@ -352,7 +808,7 @@ audioLoader.load('../sounds/backgroundMusic.MP3', function( buffer ){
     spawnPlayer();
     spawnBoss1();
     spawnBProjectile();
-  
+    
     addKeysListener();
     animate();
   
