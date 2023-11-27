@@ -11,9 +11,18 @@ var playerMesh;
 var projectileMesh;
 let projectileMeshes = [];
 
+var bossPMesh;
+let bossPMeshes = [];
+
+var bossHealth = 5;
+
+var bossTag = 1;
+
 var delay = 0;
+var bossDelay = 5;
 
 var bossMesh;
+let bossMeshes = [];
 
 let keyboard = {};
 
@@ -28,7 +37,9 @@ async function spawnPlayer(){
     scene.add(playerMesh);
 }
 //////////////////////////////////////////////////////////
-
+//
+//////////////////////////////////////////////////////////
+// Boss code
 //////////////////////////////////////////////////////////
 // Spawns bosses
 //////////////////////////////////////////////////////////
@@ -40,6 +51,7 @@ async function spawnBoss1(){
     bossMesh.position.z = -80;
     bossMesh.rotateY(-89.9);
     bossMesh.scale.set(35,35,35);
+    bossMeshes.push(bossMesh);
     scene.add(bossMesh);
 }
 
@@ -51,9 +63,84 @@ async function spawnBoss2(){
     bossMesh.position.z = -100;
     //bossMesh.rotateY(149.9);
     bossMesh.scale.set(7,7,7);
+    bossMeshes.push(bossMesh);
     scene.add(bossMesh);
 }
 //////////////////////////////////////////////////////////
+// Boss attacks
+//////////////////////////////////////////////////////////
+async function spawnBProjectile(){
+        const gltfLoader = new GLTFLoader();
+	    const projectileGLTF = await gltfLoader.loadAsync( 'models/Projectile.glb' );
+	    bossPMesh = projectileGLTF.scene;
+	    bossPMesh.scale.set(1, 1, 1);
+}
+function bossShoot(){
+    if(bossDelay == 0){
+        let projectileMeshClone = bossPMesh.clone();
+        projectileMeshClone.position.x = bossMesh.position.x;
+        projectileMeshClone.position.y = bossMesh.position.y;
+        projectileMeshClone.position.z = bossMesh.position.z;
+        scene.add(projectileMeshClone);
+        bossPMeshes.push(projectileMeshClone);
+        bossDelay = 25;
+    }
+}
+function updateBossProjectiles(){
+	bossPMeshes.forEach((projectile, index) => {
+		projectile.position.z += 0.5;
+		if(projectile.position.z > 50){
+			scene.remove(projectile);
+			bossPMeshes.splice(index, 1);
+		  }
+	});
+}
+function updateBossDelay(){
+    if(bossDelay!=0){
+        bossDelay -= 1;
+    }
+}
+//////////////////////////////////////////////////////////
+
+function updateBossHealth(){
+    switch(bossTag){
+        case 1:
+            bossHealth -= 1;
+            if(bossHealth == 0){
+                delay = 60;
+                projectileMeshes.forEach((projectile, index) =>{
+                    scene.remove(projectile);
+			        projectileMeshes.splice(index, 1);
+                })
+                bossMeshes.forEach((projectile, index) =>{
+                    scene.remove(projectile);
+			        bossMeshes.splice(index, 1);
+                })
+                spawnBoss2();
+                bossHealth = 10;
+                bossTag = 2;
+            }
+            break;
+        case 2:
+            bossHealth -= 1;
+            if(bossHealth == 0){
+                delay = 60;
+                projectileMeshes.forEach((projectile, index) =>{
+                    scene.remove(projectile);
+			        projectileMeshes.splice(index, 1);
+                })
+                bossMeshes.forEach((projectile, index) =>{
+                    scene.remove(projectile);
+			        bossMeshes.splice(index, 1);
+                })
+                bossHealth = 20;
+                bossTag = 3;
+            }
+            break;
+        case 3:
+            break;
+    }
+}
 
 //////////////////////////////////////////////////////////
 // Gets keyboard info
@@ -114,36 +201,28 @@ async function spawnProjectile(){
     var rng = Math.round(Math.random() * 12);
     switch(rng){
         case 1:
-        case 2:
-        case 3:
             const gltfLoader1 = new GLTFLoader();
-	        const projectileGLTF1 = await gltfLoader1.loadAsync( 'models/PlayerProj/proj1.glb' );
-	        projectileMesh = projectileGLTF1.scene;
-	        projectileMesh.scale.set(1, 1, 1);
+            const projectileGLTF1 = await gltfLoader1.loadAsync( 'models/PlayerProj/proj1.glb' );
+            projectileMesh = projectileGLTF1.scene;
+            projectileMesh.scale.set(1, 1, 1);
+            break;
+        case 2:
+            const gltfLoader2 = new GLTFLoader();
+            const projectileGLTF2 = await gltfLoader2.loadAsync( 'models/PlayerProj/proj2.glb' );
+            projectileMesh = projectileGLTF2.scene;
+            projectileMesh.scale.set(1, 1, 1);
+            break;
+        case 3:
+            const gltfLoader3 = new GLTFLoader();
+            const projectileGLTF3 = await gltfLoader3.loadAsync( 'models/PlayerProj/proj3.glb' );
+            projectileMesh = projectileGLTF3.scene;
+            projectileMesh.scale.set(1, 1, 1);
             break;
         case 4:
-        case 5:
-        case 6:
-            const gltfLoader2 = new GLTFLoader();
-	        const projectileGLTF2 = await gltfLoader2.loadAsync( 'models/PlayerProj/proj2.glb' );
-	        projectileMesh = projectileGLTF2.scene;
-	        projectileMesh.scale.set(1, 1, 1);
-            break;
-        case 7:
-        case 8:
-        case 9:
-            const gltfLoader3 = new GLTFLoader();
-	        const projectileGLTF3 = await gltfLoader3.loadAsync( 'models/PlayerProj/proj3.glb' );
-	        projectileMesh = projectileGLTF3.scene;
-	        projectileMesh.scale.set(1, 1, 1);
-            break;
-        case 10:
-        case 11:
-        case 12:
             const gltfLoader4 = new GLTFLoader();
-	        const projectileGLTF4 = await gltfLoader4.loadAsync( 'models/PlayerProj/proj4.glb' );
-	        projectileMesh = projectileGLTF4.scene;
-	        projectileMesh.scale.set(1, 1, 1);
+            const projectileGLTF4 = await gltfLoader4.loadAsync( 'models/PlayerProj/proj4.glb' );
+            projectileMesh = projectileGLTF4.scene;
+            projectileMesh.scale.set(1, 1, 1);
             break;
     }
 }
@@ -153,9 +232,10 @@ async function spawnProjectile(){
 function updateProjectiles(){
 	projectileMeshes.forEach((projectile, index) => {
 		projectile.position.z -= 0.5;
-		if(projectile.position.z > 23){
+		if(projectile.position.z < -45){
 			scene.remove(projectile);
 			projectileMeshes.splice(index, 1);
+            updateBossHealth();
 		  }
 	});
 }
@@ -171,8 +251,7 @@ function shoot(){
             laserSound.setLoop( false );
             laserSound.setVolume( 0.05);
             laserSound.play();
-        });
-
+        })
         let projectileMeshClone = projectileMesh.clone();
         projectileMeshClone.position.x = playerMesh.position.x;
         projectileMeshClone.position.y = playerMesh.position.y;
@@ -199,13 +278,15 @@ function animate() {
     movePlayer();
     moveCamera();
     shoot();
+    bossShoot();
 	updateProjectiles();
+    updateBossProjectiles();
     updateDelay();
+    updateBossDelay();
 
     renderer.render(scene, camera)
     requestAnimationFrame(animate)
 }
-
 //////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////
@@ -215,16 +296,6 @@ const listener = new THREE.AudioListener();
 //camera.add(listener);
 
 const audioLoader = new THREE.AudioLoader();
-
-const backgroundSound = new THREE.Audio( listener );
-audioLoader.load('../sounds/backgroundMusic.MP3', function( buffer ){
-    backgroundSound.setBuffer( buffer );
-    backgroundSound.setLoop( true );
-    backgroundSound.setVolume( 0.01);
-    backgroundSound.play();
-});
-
-
 //////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////
@@ -246,6 +317,14 @@ async function init() {
     renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth , window.innerHeight);
+
+    const backgroundSound = new THREE.Audio( listener );
+audioLoader.load('../sounds/backgroundMusic.MP3', function( buffer ){
+    backgroundSound.setBuffer( buffer );
+    backgroundSound.setLoop( true );
+    backgroundSound.setVolume( 0.01);
+    backgroundSound.play();
+});
 
 
     document.getElementById("main").appendChild( renderer.domElement );
@@ -271,7 +350,8 @@ async function init() {
     clock = new THREE.Clock();
   
     spawnPlayer();
-    spawnBoss2();
+    spawnBoss1();
+    spawnBProjectile();
   
     addKeysListener();
     animate();
