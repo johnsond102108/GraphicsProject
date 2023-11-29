@@ -26,7 +26,8 @@ var playerMesh;
 var projectileMesh;
 let projectileMeshes = [];
 
-var playerHealth = 5;
+var PLAYER_HEALTH_MAX = 10;
+var playerHealth = PLAYER_HEALTH_MAX;
 var iframes = 0;
 
 var bossPMesh;
@@ -51,7 +52,9 @@ var snakerng;
 var snakedelay;
 var snaketrigger = 0;
 
-var bossHealth = 20;
+const BOSS_HEALTH_MAX_P1 = 20;
+const BOSS_HEALTH_MAX_P2 = 20;
+var bossHealth = BOSS_HEALTH_MAX_P1;
 
 var bossTag = 1;
 
@@ -63,6 +66,7 @@ var bossMesh;
 let bossMeshes = [];
 
 let keyboard = {};
+const FIRE_DELAY = 20;
 
 //////////////////////////////////////////////////////////
 // Spawns the player
@@ -387,6 +391,7 @@ function updateBoss1Phase2(){
 //////////////////////////////////////////////////////////
 
 function updateBossHealth(){
+    updateBossHealthUI(bossTag);
     switch(bossTag){
         case 1:
             bossHealth -= 1;
@@ -408,7 +413,7 @@ function updateBossHealth(){
 			        bossMeshes.splice(index, 1);
                 })
                 spawnBoss2();
-                bossHealth = 10;
+                bossHealth = BOSS_HEALTH_MAX_P2;
                 bossTag = 2;
                 phaseTrigger = 1;
             }
@@ -479,6 +484,7 @@ function checkCollision(){
             playerMesh.position.x <= projectile.position.x + 1 &&
             playerMesh.position.z >= projectile.position.z - 1 &&
             playerMesh.position.z <= projectile.position.z + 1 && iframes == 0){
+                updatePlayerHealthUI();
                 playerHealth -= 1;
                 p2.textContent = playerHealth;
     cPointLabel2 = new CSS2DObject(p2);
@@ -687,7 +693,7 @@ function shoot(){
         projectileMeshClone.position.z = playerMesh.position.z - 3;
         scene.add(projectileMeshClone);
         projectileMeshes.push(projectileMeshClone);
-        delay = 15;
+        delay = FIRE_DELAY;
       }
 }
 //////////////////////////////////////////////////////////
@@ -701,7 +707,35 @@ function updateDelay(){
         iframes -= 1;
     }
 }
+
 //////////////////////////////////////////////////////////
+// Boss Health Bar
+//////////////////////////////////////////////////////////
+function updateBossHealthUI(bossTag){
+    var elem = document.getElementById("bossHealthBar");
+    switch (bossTag) {
+        case 1:
+            elem.style.width = (bossHealth / BOSS_HEALTH_MAX_P1 * 100) + "%";
+            break;
+        
+        case 2:
+            elem.style.width = (bossHealth / BOSS_HEALTH_MAX_P2 * 100) + "%";
+            break;
+        
+        default:
+            break;
+    }
+    
+}
+
+//////////////////////////////////////////////////////////
+// Player Health Bar
+//////////////////////////////////////////////////////////
+function updatePlayerHealthUI(){
+    var elem = document.getElementById("playerHealthBar");
+    elem.style.width = (playerHealth / PLAYER_HEALTH_MAX * 100) + "%";
+    
+}
 
 //////////////////////////////////////////////////////////
 // Carrying the entire project, use it for things that need to move
