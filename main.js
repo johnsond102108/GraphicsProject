@@ -70,7 +70,7 @@ const MAX_WARNING_DELAY = 50;
 var warningDelay = MAX_WARNING_DELAY;
 var warningTrigger = 0;
 
-const BOSS_HEALTH_MAX_P1 = 20;
+const BOSS_HEALTH_MAX_P1 = 15;
 const BOSS_HEALTH_MAX_P2 = 20;
 var bossHealth = BOSS_HEALTH_MAX_P1;
 
