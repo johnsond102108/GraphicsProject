@@ -1,0 +1,48 @@
+#image{
+    max-width: 100%;
+    position:absolute;
+}
+
+.ui {
+    position:absolute;
+
+}
+
+#bossHealthDiv{
+    top: 0px;
+    right: 0;
+    width: 100%;
+    
+}
+
+#bossHealthBar {
+    width: 100%;
+    height: 30px;
+    background-color: red;
+    text-align: center;
+    line-height: 30px;
+    color: red;
+    font-weight: bolder;
+    font-size: larger;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#playerHealthDiv{
+    bottom: 4%;
+    right: 0;
+    width: 100%;
+    height: auto;
+    margin: 100;
+}
+
+#playerHealthBar {
+    width: 100%;
+    height: 30px;
+    background-color: green;
+    text-align: center;
+    line-height: 30px;
+    color: red;
+    font-weight: bolder;
+    font-size: larger;
+    font-family: 'Courier New', Courier, monospace;
+}
