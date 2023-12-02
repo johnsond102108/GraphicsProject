@@ -21,6 +21,17 @@ A playable arcade game reminiscent of Galaga
 * Run Vite (npx vite)
 * Open the link provided by Vite
 
+### How To Play
+
+* Avoid boss projectiles
+* Shoot the boss until it dies
+
+#### Controls
+
+* Movement - WASD
+* Shoot - Shift
+* Camera - Arrow Kets
+
 ## Known Issues
 
 - Menu breaks slightly on 2K+ monitors
